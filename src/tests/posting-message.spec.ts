@@ -36,6 +36,7 @@ class InMemoryMessageRepository implements MessageRepository {
 }
 class StubDateProvider implements DateProvider {
     _now: Date;
+
     getNow(): Date {
         return this._now
     }
