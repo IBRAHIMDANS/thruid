@@ -1,3 +1,6 @@
+import {DateProvider, Message, MessageRepository, PostMessageUseCase} from "../post-message.usecase";
+import {PostMessageCommand} from "../post-message.usecase";
+
 describe('Feature: Posting a message', () => {
     describe('Rule: A Message can contain a maximum of 280 characters', () => {
         test("A can post a message on her timeline", () => {
@@ -16,27 +19,43 @@ describe('Feature: Posting a message', () => {
         })
     })
 })
-let message: { id: string; text: string; author: string; publishedAt: Date; } = {
+
+let message: Message = {
     id: 'message-id',
     text: 'Hello, world!',
     author: 'A',
     publishedAt: new Date("2023-12-25T12:00:00.000Z")
 }
+
 let now: Date;
 
-function givenNowIs(_now: Date) {
-    now = _now
+class InMemoryMessageRepository implements MessageRepository {
+    save(_message: Message): void {
+        message = _message
+    }
 }
-
-function whenUserPostsAMessage(postMessageCommand: { id: string; text: string; author: string; }) {
-    message = {
-        id: postMessageCommand.id,
-        text: postMessageCommand.text,
-        author: postMessageCommand.author,
-        publishedAt: now
+class StubDateProvider implements DateProvider {
+    _now: Date;
+    getNow(): Date {
+        return this._now
     }
 }
 
-function thenPostedMessageShouldBe(expectedMessage: { id: string; text: string; author: string; publishedAt: Date; }) {
+const inMemoryMessageRepository = new InMemoryMessageRepository()
+const dateProvider = new StubDateProvider()
+
+const postMessageUseCase = new PostMessageUseCase(
+    inMemoryMessageRepository,
+    dateProvider
+)
+function givenNowIs(_now: Date) {
+    dateProvider._now = _now
+}
+
+function whenUserPostsAMessage(postMessageCommand: PostMessageCommand) {
+    postMessageUseCase.handle(postMessageCommand)
+}
+
+function thenPostedMessageShouldBe(expectedMessage: Message) {
     return expect(expectedMessage).toEqual(message)
 }
