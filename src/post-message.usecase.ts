@@ -13,6 +13,21 @@ export interface  MessageRepository {
 export interface DateProvider {
     getNow(): Date;
 }
+
+export class MessageTooLongError extends Error {
+    constructor(message = 'Message too long') {
+        super(message);
+        this.name = 'MessageTooLongError';
+    }
+}
+
+export class MessageCannotBeEmptyError extends Error {
+    constructor(message = 'Message cannot be empty') {
+        super(message);
+        this.name = 'MessageCannotBeEmptyError';
+    }
+}
+
 export class PostMessageUseCase {
     constructor(
         private readonly messageRepository: MessageRepository,
@@ -21,6 +36,15 @@ export class PostMessageUseCase {
     }
 
     handle(postMessageCommand: PostMessageCommand): void {
+
+        if (postMessageCommand.text.length === 0) {
+            throw new MessageCannotBeEmptyError();
+        }
+
+        if (postMessageCommand.text.length > 280) {
+            throw new MessageTooLongError();
+        }
+
         this.messageRepository.save({
             id: postMessageCommand.id,
             text: postMessageCommand.text,
