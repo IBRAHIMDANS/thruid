@@ -17,14 +17,14 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config user.name 'GitHub Action'
+          git config user.name 'GitHub bot rebase main'
           git config user.email 'action@github.com'
 
       - name: Rebase dev on main
         run: |
           git fetch origin main
           git rebase origin/main
-          git push origin dev
+          git push https://${{ secrets.MY_GITHUB_TOKEN }}@github.com/IBRAHIMDANS/thruid.git dev
 
       - name: Clean up
         if: always()
