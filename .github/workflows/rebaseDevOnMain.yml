@@ -25,8 +25,9 @@ jobs:
         run: |
           git fetch origin main
           git rebase origin/main
-          git push https://${{ secrets.MY_GITHUB_TOKEN }}@github.com/IBRAHIMDANS/thruid.git dev
-
+          git push origin dev
+        continue-on-error: true
+        
       - name: Clean up
-        if: always()
+        if: steps.rebase.outcome == 'failure'
         run: git rebase --abort
