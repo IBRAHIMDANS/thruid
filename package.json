@@ -1,5 +1,6 @@
 {
   "name": "thruid",
+  "description": "A CLI tool",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -9,6 +10,9 @@
   },
   "bin": {
     "thruid": "dist/index.js"
+  },
+  "dependencies": {
+    "commander": "^11.1.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.11",

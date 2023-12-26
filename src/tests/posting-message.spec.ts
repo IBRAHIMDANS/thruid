@@ -3,11 +3,11 @@ import {
     Message,
     MessageCannotBeEmptyError,
     MessageCannotOnlyBeSpaceError,
-    MessageRepository,
     MessageTooLongError,
     PostMessageCommand,
     PostMessageUseCase
 } from "../post-message.usecase";
+import {InMemoryMessageRepository} from "../message.inmemory.usecase";
 
 
 describe('Feature: Posting a message', () => {
@@ -71,13 +71,6 @@ describe('Feature: Posting a message', () => {
 })
 
 
-class InMemoryMessageRepository implements MessageRepository {
-    message: Message;
-
-    save(_message: Message): void {
-        this.message = _message
-    }
-}
 
 class StubDateProvider implements DateProvider {
     _now: Date;
