@@ -7,9 +7,10 @@ export type Message = {
 
 export type PostMessageCommand = Omit<Message, 'publishedAt'>;
 
-export interface  MessageRepository {
+export interface MessageRepository {
     save(message: Message): void;
 }
+
 export interface DateProvider {
     getNow(): Date;
 }
@@ -18,6 +19,13 @@ export class MessageTooLongError extends Error {
     constructor(message = 'Message too long') {
         super(message);
         this.name = 'MessageTooLongError';
+    }
+}
+
+export class MessageCannotOnlyBeSpaceError extends Error {
+    constructor(message = 'Message cannot only be space') {
+        super(message);
+        this.name = 'MessageCannotOnlyBeSpaceError';
     }
 }
 
@@ -40,7 +48,9 @@ export class PostMessageUseCase {
         if (postMessageCommand.text.length === 0) {
             throw new MessageCannotBeEmptyError();
         }
-
+        if (postMessageCommand.text.trim().length === 0) {
+            throw new MessageCannotOnlyBeSpaceError();
+        }
         if (postMessageCommand.text.length > 280) {
             throw new MessageTooLongError();
         }
@@ -53,3 +63,4 @@ export class PostMessageUseCase {
         })
     }
 }
+

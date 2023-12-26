@@ -2,6 +2,7 @@ import {
     DateProvider,
     Message,
     MessageCannotBeEmptyError,
+    MessageCannotOnlyBeSpaceError,
     MessageRepository,
     MessageTooLongError,
     PostMessageCommand,
@@ -10,54 +11,71 @@ import {
 
 
 describe('Feature: Posting a message', () => {
+    let fixture: Fixture;
+    beforeEach(() => {
+        fixture = createFixture()
+    })
     describe('Rule: A Message can contain a maximum of 280 characters', () => {
         test("A can post a message on her timeline", () => {
-            givenNowIs(new Date("2023-12-25T12:00:00.000Z"))
-            whenUserPostsAMessage({
+            fixture.givenNowIs(new Date("2023-12-25T12:00:00.000Z"))
+            fixture.whenUserPostsAMessage({
                 id: 'message-id',
                 text: 'Hello, world!',
                 author: 'A'
             })
-            thenPostedMessageShouldBe({
+            fixture.thenPostedMessageShouldBe({
                 id: 'message-id',
                 text: 'Hello, world!',
                 author: 'A',
                 publishedAt: new Date("2023-12-25T12:00:00.000Z")
             })
         })
+    })
+    describe('Rule: A cannot post  Message exceding a maximum of 280 characteres', () => {
         test('A cannot post a message with more than 280 characters', () => {
 
             const textWith281Characters = 'a'.repeat(282)
 
-            givenNowIs(new Date("2023-12-25T12:00:00.000Z"))
-            whenUserPostsAMessage({
+            fixture.givenNowIs(new Date("2023-12-25T12:00:00.000Z"))
+            fixture.whenUserPostsAMessage({
                 id: 'message-id',
                 text: textWith281Characters,
                 author: 'A'
             })
 
-            thenAnErrorShouldBe(MessageTooLongError);
+            fixture.thenAnErrorShouldBe(MessageTooLongError);
         })
     })
-    describe('A can post empty messages', () => {
+    describe('Rule: A cannot post empty Message', () => {
         test('A can post an empty message', () => {
-            givenNowIs(new Date("2023-12-25T12:00:00.000Z"))
-            whenUserPostsAMessage({
+            fixture.givenNowIs(new Date("2023-12-25T12:00:00.000Z"))
+            fixture.whenUserPostsAMessage({
                 id: 'message-id',
                 text: '',
                 author: 'A'
             })
-            thenAnErrorShouldBe(MessageCannotBeEmptyError)
+            fixture.thenAnErrorShouldBe(MessageCannotBeEmptyError)
+        })
+    })
+    describe('Rule: A cannot post Message with only space ', () => {
+        test('Rule: A cannot post a message with only spaces', () => {
+            fixture.givenNowIs(new Date("2023-12-25T12:00:00.000Z"))
+            fixture.whenUserPostsAMessage({
+                id: 'message-id',
+                text: '         ',
+                author: 'A'
+            })
+            fixture.thenAnErrorShouldBe(MessageCannotOnlyBeSpaceError)
         })
     })
 })
 
-let message: Message;
-let thrownError: Error;
 
 class InMemoryMessageRepository implements MessageRepository {
+    message: Message;
+
     save(_message: Message): void {
-        message = _message
+        this.message = _message
     }
 }
 
@@ -69,32 +87,29 @@ class StubDateProvider implements DateProvider {
     }
 }
 
-const inMemoryMessageRepository = new InMemoryMessageRepository()
-const dateProvider = new StubDateProvider()
 
-const postMessageUseCase = new PostMessageUseCase(
-    inMemoryMessageRepository,
-    dateProvider
-)
-
-function givenNowIs(_now: Date) {
-    dateProvider._now = _now
-}
-
-function whenUserPostsAMessage(postMessageCommand: PostMessageCommand) {
-    try {
-        postMessageUseCase.handle(postMessageCommand);
-    } catch (err) {
-        thrownError = err;
+const createFixture = () => {
+    const dateProvider = new StubDateProvider()
+    const messageRepository = new InMemoryMessageRepository()
+    const postMessageUseCase = new PostMessageUseCase(messageRepository, dateProvider)
+    let thrownError: Error;
+    return {
+        givenNowIs: (now: Date) => {
+            dateProvider._now = now
+        },
+        whenUserPostsAMessage: (postMessageCommand: PostMessageCommand) => {
+            try {
+                postMessageUseCase.handle(postMessageCommand);
+            } catch (err) {
+                thrownError = err;
+            }
+        },
+        thenPostedMessageShouldBe(expectedMessage: Message) {
+            return expect(expectedMessage).toEqual(messageRepository.message)
+        },
+        thenAnErrorShouldBe(expectedErrorClass: new () => Error) {
+            expect(thrownError.name).toBe(expectedErrorClass.name);
+        }
     }
 }
-
-
-function thenPostedMessageShouldBe(expectedMessage: Message) {
-    return expect(expectedMessage).toEqual(message)
-}
-
-function thenAnErrorShouldBe(expectedErrorClass: new () => Error) {
-    expect(thrownError.name).toBe(expectedErrorClass.name);
-}
-
+type Fixture = ReturnType<typeof createFixture>
