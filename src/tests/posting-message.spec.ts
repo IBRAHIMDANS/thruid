@@ -1,5 +1,4 @@
 import {
-    DateProvider,
     MessageCannotBeEmptyError,
     MessageCannotOnlyBeSpaceError,
     MessageTooLongError,
@@ -8,6 +7,7 @@ import {
 } from "../post-message.usecase";
 import {InMemoryMessageRepository} from "../message.inmemory.usecase";
 import {Message} from "../message";
+import {StubDateProvider} from "../stub-date-provider";
 
 
 describe('Feature: Posting a message', () => {
@@ -17,7 +17,7 @@ describe('Feature: Posting a message', () => {
     })
     describe('Rule: A Message can contain a maximum of 280 characters', () => {
         test("A can post a message on her timeline", async () => {
-            fixture.givenNowIs(new Date("2023-12-25T12:00:00.000Z"))
+            fixture.givenNowIs(new Date("2023-12-26T16:28:00Z"))
             await fixture.whenUserPostsAMessage({
                 id: 'message-id',
                 text: 'Hello, world!',
@@ -27,7 +27,7 @@ describe('Feature: Posting a message', () => {
                 id: 'message-id',
                 text: 'Hello, world!',
                 author: 'A',
-                publishedAt: new Date("2023-12-25T12:00:00.000Z")
+                publishedAt: new Date('2023-12-26T16:28:00Z')
             })
         })
     })
@@ -36,7 +36,7 @@ describe('Feature: Posting a message', () => {
 
             const textWith281Characters = 'a'.repeat(282)
 
-            fixture.givenNowIs(new Date("2023-12-25T12:00:00.000Z"))
+            fixture.givenNowIs(new Date("2023-12-26T16:28:00Z"))
             await fixture.whenUserPostsAMessage({
                 id: 'message-id',
                 text: textWith281Characters,
@@ -48,7 +48,7 @@ describe('Feature: Posting a message', () => {
     })
     describe('Rule: A cannot post empty Message', () => {
         test('A can post an empty message', async () => {
-            fixture.givenNowIs(new Date("2023-12-25T12:00:00.000Z"))
+            fixture.givenNowIs(new Date("2023-12-26T16:28:00Z"))
             await fixture.whenUserPostsAMessage({
                 id: 'message-id',
                 text: '',
@@ -59,7 +59,7 @@ describe('Feature: Posting a message', () => {
     })
     describe('Rule: A cannot post Message with only space ', () => {
         test('Rule: A cannot post a message with only spaces', async () => {
-            fixture.givenNowIs(new Date("2023-12-25T12:00:00.000Z"))
+            fixture.givenNowIs(new Date("2023-12-26T16:28:00Z"))
             await fixture.whenUserPostsAMessage({
                 id: 'message-id',
                 text: '         ',
@@ -69,15 +69,6 @@ describe('Feature: Posting a message', () => {
         })
     })
 })
-
-
-class StubDateProvider implements DateProvider {
-    _now: Date;
-
-    getNow(): Date {
-        return this._now
-    }
-}
 
 
 const createFixture = () => {
