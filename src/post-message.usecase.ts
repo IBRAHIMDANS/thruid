@@ -1,15 +1,9 @@
-export type Message = {
-    id: string;
-    text: string;
-    author: string;
-    publishedAt: Date;
-}
+import {MessageRepository} from "./message.repository";
+import {Message} from "./message";
+
 
 export type PostMessageCommand = Omit<Message, 'publishedAt'>;
 
-export interface MessageRepository {
-    save(message: Message): void;
-}
 
 export interface DateProvider {
     getNow(): Date;
@@ -43,7 +37,7 @@ export class PostMessageUseCase {
     ) {
     }
 
-    handle(postMessageCommand: PostMessageCommand): void {
+    async handle(postMessageCommand: PostMessageCommand): Promise<void> {
 
         if (postMessageCommand.text.length === 0) {
             throw new MessageCannotBeEmptyError();
@@ -55,7 +49,7 @@ export class PostMessageUseCase {
             throw new MessageTooLongError();
         }
 
-        this.messageRepository.save({
+        await this.messageRepository.save({
             id: postMessageCommand.id,
             text: postMessageCommand.text,
             author: postMessageCommand.author,

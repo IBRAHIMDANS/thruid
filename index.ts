@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import {Command} from 'commander';
 import {PostMessageCommand, PostMessageUseCase} from "./src/post-message.usecase";
-import {InMemoryMessageRepository} from "./src/message.inmemory.usecase";
+import {FileSystemMessageRepository} from "./src/message.fs.repository";
 
 class DateProvider implements DateProvider {
     getNow(): Date {
@@ -10,7 +10,7 @@ class DateProvider implements DateProvider {
 }
 
 const program = new Command();
-const messageRepository = new InMemoryMessageRepository();
+const messageRepository = new FileSystemMessageRepository();
 const dateProvider = new DateProvider();
 const postMessageUseCase = new PostMessageUseCase(messageRepository, dateProvider)
 program
@@ -20,16 +20,16 @@ program
         new Command('post')
             .argument('<user>', 'the current user')
             .argument('<message>', 'the message to post')
-            .action((user, message) => {
+            .action(async (user, message) => {
                 const postMessageCommand: PostMessageCommand = {
                     id: 'message-id',
                     text: message,
                     author: user
                 }
                 try {
-                    postMessageUseCase.handle(postMessageCommand);
+                    await postMessageUseCase.handle(postMessageCommand);
                     console.log('Message posted')
-                    console.table([messageRepository.message])
+                    // console.table([messageRepository.message])
                     process.exit(0)
                 } catch (e) {
                     console.log(e.message, "<---- error")
