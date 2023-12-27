@@ -4,8 +4,8 @@ export const messageBuilder = (
     {
         id = 'message-id',
         author = 'A',
-        publishedAt = new Date('2023-12-26T16:39:00Z'),
         text = 'Hello World',
+        publishedAt = new Date('2023-12-26T16:39:00Z'),
         publicationTime = 'less than a minute ago'
     } = {} as Message
 ) => {
@@ -38,8 +38,8 @@ export const messageBuilder = (
                 id: message.id,
                 text: message.text,
                 author: message.author,
-                publishedAt: message.publishedAt
-
+                publishedAt: message.publishedAt,
+                publicationTime: message.publicationTime
             }
         }
     }

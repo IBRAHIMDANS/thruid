@@ -9,11 +9,10 @@ describe('Feature: View Timeline', () => {
     })
 
     describe('Rule: Messages are shown in reverse chronological order', () => {
-        test('A can view the 2 messages she published in her timeline', async () => {
-            // Given A has published 2 messages
+        test('A can view the 3 messages she published in her timeline', async () => {
+            // Given A has published 3 messages
             // When A views her timeline
-            // Then A sees the 2 messages in reverse chronological order
-
+            // Then A sees the 3 messages in reverse chronological order
             fixture.givenTheFollowingMessagesExist([
                 {
                     id: 'message-id-1',
