@@ -1,0 +1,33 @@
+name: Auto Create pull request
+
+on:
+  push:
+    branches:
+      - dev
+      
+jobs:
+  create-merge-request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install gh
+
+      - name: Config GitHub CLI
+        run: |
+          gh auth setup-git
+          git config --global user.email "boot@github.com"
+          git config --global user.name "git bot mr 🤖"
+
+      - name: Create MR 
+        run: |
+          PR_TITLE=$(git log -1 --pretty=format:%s)
+          PR_BODY=$(git log -1 --pretty=format:%b)
+          gh pr create --title "$PR_TITLE" --body "$PR_BODY" --reviewer votre_nom_utilisateur_github --base master --head dev
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
