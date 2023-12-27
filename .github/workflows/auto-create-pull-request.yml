@@ -4,18 +4,32 @@ on:
   push:
     branches:
       - dev
-      
+
 jobs:
   create-merge-request:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Install GitHub CLI
         run: |
           sudo apt update
           sudo apt install gh
+
+      - name: Check if new commit commits
+        id: check-commits
+        run: |
+          COMMITS=$(git log origin/main..origin/dev --oneline)
+          if [[ -z "$COMMITS" ]]; then
+            echo "Aucun nouveau commit à fusionner."
+            echo "::set-output name=has_changes::false"
+          else
+            echo "::set-output name=has_changes::true"
+          fi
+
 
       - name: Config GitHub CLI
         run: |
@@ -23,7 +37,7 @@ jobs:
           git config --global user.email "boot@github.com"
           git config --global user.name "git bot mr 🤖"
 
-      - name: Create MR 
+      - name: Create MR
         run: |
           gh pr create --title "Chore: rebase dev onto main" --body "rebase dev onto main" --reviewer ibrahimdans --base main --head dev
 
