@@ -19,7 +19,7 @@ jobs:
 
       - name: Config GitHub CLI
         run: |
-          gh auth setup-git
+          echo "${{ secrets.PERSONAL_ACCESS_TOKEN }}" | gh auth login --with-token
           git config --global user.email "boot@github.com"
           git config --global user.name "git bot mr 🤖"
 
@@ -30,4 +30,4 @@ jobs:
           gh pr create --title "$PR_TITLE" --body "$PR_BODY" --reviewer ibrahimdans --base master --head dev
 
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
