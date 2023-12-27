@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - dev
-      
+
 jobs:
   create-merge-request:
     runs-on: ubuntu-latest
@@ -17,13 +17,25 @@ jobs:
           sudo apt update
           sudo apt install gh
 
+      - name: Check if new commit commits
+        id: check-commits
+        run: |
+          COMMITS=$(git log main..dev --oneline)
+          if [[ -z "$COMMITS" ]]; then
+            echo "Aucun nouveau commit à fusionner."
+            echo "::set-output name=has_changes::false"
+          else
+            echo "::set-output name=has_changes::true"
+          fi
+
+
       - name: Config GitHub CLI
         run: |
           echo "${{ secrets.PERSONAL_ACCESS_TOKEN }}" | gh auth login --with-token
           git config --global user.email "boot@github.com"
           git config --global user.name "git bot mr 🤖"
 
-      - name: Create MR 
+      - name: Create MR
         run: |
           PR_TITLE=$(git log -1 --pretty=format:%s)
           PR_BODY=$(git log -1 --pretty=format:%b)
