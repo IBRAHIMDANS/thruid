@@ -1,100 +1,69 @@
-import {
-    DateProvider,
-    Message,
-    MessageCannotBeEmptyError,
-    MessageRepository,
-    MessageTooLongError,
-    PostMessageCommand,
-    PostMessageUseCase
-} from "../post-message.usecase";
+import {MessageCannotBeEmptyError, MessageCannotOnlyBeSpaceError, MessageTooLongError} from "../post-message.usecase";
+import {createMessagingFixture, MessagingFixture} from "./messaging.fixture";
+import {messageBuilder} from "./message.builder";
 
 
 describe('Feature: Posting a message', () => {
+    let fixture: MessagingFixture;
+    beforeEach(() => {
+        fixture = createMessagingFixture()
+    })
     describe('Rule: A Message can contain a maximum of 280 characters', () => {
-        test("A can post a message on her timeline", () => {
-            givenNowIs(new Date("2023-12-25T12:00:00.000Z"))
-            whenUserPostsAMessage({
-                id: 'message-id',
-                text: 'Hello, world!',
-                author: 'A'
-            })
-            thenPostedMessageShouldBe({
-                id: 'message-id',
-                text: 'Hello, world!',
-                author: 'A',
-                publishedAt: new Date("2023-12-25T12:00:00.000Z")
-            })
-        })
-        test('A cannot post a message with more than 280 characters', () => {
+        test("A can post a message on her timeline", async () => {
 
-            const textWith281Characters = 'a'.repeat(282)
+            const now = new Date("2023-12-26T16:28:00Z")
 
-            givenNowIs(new Date("2023-12-25T12:00:00.000Z"))
-            whenUserPostsAMessage({
-                id: 'message-id',
-                text: textWith281Characters,
-                author: 'A'
-            })
+            fixture.givenNowIs(now)
 
-            thenAnErrorShouldBe(MessageTooLongError);
+            const aMessageBuilder = messageBuilder().withText('Hello, world!')
+            await fixture.whenUserPostsAMessage(aMessageBuilder.build())
+
+            await fixture.thenMessageShouldBe(aMessageBuilder.publishedAt(now).build())
+
         })
     })
-    describe('A can post empty messages', () => {
-        test('A can post an empty message', () => {
-            givenNowIs(new Date("2023-12-25T12:00:00.000Z"))
-            whenUserPostsAMessage({
-                id: 'message-id',
-                text: '',
-                author: 'A'
-            })
-            thenAnErrorShouldBe(MessageCannotBeEmptyError)
+    describe('Rule: A cannot post  Message exceding a maximum of 280 characteres', () => {
+        test('A cannot post a message with more than 280 characters', async () => {
+
+            const now = new Date("2023-12-26T16:28:00Z")
+
+            const aMessageBuilder = messageBuilder().withText('a'.repeat(282)).authorBy('A')
+
+            fixture.givenNowIs(now)
+            await fixture.whenUserPostsAMessage(aMessageBuilder.build())
+
+            fixture.thenAnErrorShouldBe(MessageTooLongError);
+
+        })
+    })
+    describe('Rule: A cannot post empty Message', () => {
+        test('A can post an empty message', async () => {
+
+            const now = new Date("2023-12-26T16:28:00Z")
+
+            fixture.givenNowIs(now)
+
+            const aMessageBuilderWithEmptyMessage = messageBuilder().withId('message-id').withText('').authorBy('A')
+
+            await fixture.whenUserPostsAMessage(aMessageBuilderWithEmptyMessage.build())
+
+            fixture.thenAnErrorShouldBe(MessageCannotBeEmptyError)
+
+        })
+    })
+    describe('Rule: A cannot post Message with only space ', () => {
+        test('Rule: A cannot post a message with only spaces', async () => {
+
+            const now = new Date("2023-12-26T16:28:00Z")
+
+            fixture.givenNowIs(now)
+
+            const aMessageBuilderWithTextOnlySpaces = messageBuilder().withText(' '.repeat(100)).authorBy('A')
+
+            await fixture.whenUserPostsAMessage(aMessageBuilderWithTextOnlySpaces.build())
+
+            fixture.thenAnErrorShouldBe(MessageCannotOnlyBeSpaceError)
+
         })
     })
 })
-
-let message: Message;
-let thrownError: Error;
-
-class InMemoryMessageRepository implements MessageRepository {
-    save(_message: Message): void {
-        message = _message
-    }
-}
-
-class StubDateProvider implements DateProvider {
-    _now: Date;
-
-    getNow(): Date {
-        return this._now
-    }
-}
-
-const inMemoryMessageRepository = new InMemoryMessageRepository()
-const dateProvider = new StubDateProvider()
-
-const postMessageUseCase = new PostMessageUseCase(
-    inMemoryMessageRepository,
-    dateProvider
-)
-
-function givenNowIs(_now: Date) {
-    dateProvider._now = _now
-}
-
-function whenUserPostsAMessage(postMessageCommand: PostMessageCommand) {
-    try {
-        postMessageUseCase.handle(postMessageCommand);
-    } catch (err) {
-        thrownError = err;
-    }
-}
-
-
-function thenPostedMessageShouldBe(expectedMessage: Message) {
-    return expect(expectedMessage).toEqual(message)
-}
-
-function thenAnErrorShouldBe(expectedErrorClass: new () => Error) {
-    expect(thrownError.name).toBe(expectedErrorClass.name);
-}
-
