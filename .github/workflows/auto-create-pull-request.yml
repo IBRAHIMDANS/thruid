@@ -27,7 +27,7 @@ jobs:
         run: |
           PR_TITLE=$(git log -1 --pretty=format:%s)
           PR_BODY=$(git log -1 --pretty=format:%b)
-          gh pr create --title "$PR_TITLE" --body "$PR_BODY" --reviewer votre_nom_utilisateur_github --base master --head dev
+          gh pr create --title "$PR_TITLE" --body "$PR_BODY" --reviewer ibrahimdans --base master --head dev
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
