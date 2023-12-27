@@ -4,13 +4,32 @@ import {MessageRepository} from "./message.repository";
 import * as fs from "fs";
 
 export class FileSystemMessageRepository implements MessageRepository {
+    private readonly messagePath = path.join(__dirname, 'message.json');
 
-    save(message: Message) {
-        let messagePath = path.join(__dirname, 'message.json');
-        return fs.promises.writeFile(messagePath, JSON.stringify(message));
+    async save(message: Message) {
+        const messages = await this.getMessages();
+        messages.push(message);
+        return fs.promises.writeFile(this.messagePath, JSON.stringify(messages));
     }
 
-    getAllOfUser(user: string): Promise<Message[]> {
-        return Promise.resolve([]);
+    async getAllOfUser(user: string): Promise<Message[]> {
+        const messages = await this.getMessages();
+        return messages.filter(message => message.author === user);
+    }
+
+    private async getMessages(): Promise<Message[]> {
+        try {
+            const data = await fs.promises.readFile(this.messagePath, 'utf-8');
+            const messages = JSON.parse(data.toString()) as Message[];
+            return messages.map(message => ({
+                id: message.id,
+                text: message.text,
+                author: message.author,
+                publishedAt: new Date(message.publishedAt)
+            }));
+        } catch (e) {
+            console.error(e)
+            return [];
+        }
     }
 }
