@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Install GitHub CLI
         run: |
@@ -20,7 +22,7 @@ jobs:
       - name: Check if new commit commits
         id: check-commits
         run: |
-          COMMITS=$(git log main..dev --oneline)
+          COMMITS=$(git log origin/main..origin/dev --oneline)
           if [[ -z "$COMMITS" ]]; then
             echo "Aucun nouveau commit à fusionner."
             echo "::set-output name=has_changes::false"
