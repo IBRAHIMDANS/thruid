@@ -16,10 +16,9 @@ describe('Feature: Posting a message', () => {
             fixture.givenNowIs(now)
 
             const aMessageBuilder = messageBuilder().withText('Hello, world!')
-
             await fixture.whenUserPostsAMessage(aMessageBuilder.build())
 
-            fixture.thenMessageShouldBe(aMessageBuilder.publishedAt(now).build())
+            await fixture.thenMessageShouldBe(aMessageBuilder.publishedAt(now).build())
 
         })
     })

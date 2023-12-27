@@ -1,16 +1,26 @@
 import {StubDateProvider} from "../stub-date-provider";
+
 import {InMemoryMessageRepository} from "../message.inmemory.usecase";
 import {PostMessageCommand, PostMessageUseCase} from "../post-message.usecase";
-import {EditMessage, Message, PostMessage} from "../message";
 import {ViewTimelineUsecase} from "../view-timeline.usecase";
+import {EditMessageUseCase} from "../edit-message.usecase";
+
+import {EditMessageCommand, Message, PostMessage} from "../message";
+
 
 export const createMessagingFixture = () => {
-    const dateProvider = new StubDateProvider()
-    const messageRepository = new InMemoryMessageRepository()
-    const postMessageUseCase = new PostMessageUseCase(messageRepository, dateProvider)
     let thrownError: Error;
     let timeline: Message[] = [];
+
+    const dateProvider = new StubDateProvider()
+
+    const messageRepository = new InMemoryMessageRepository()
+
+
+    // USE CASES
+    const postMessageUseCase = new PostMessageUseCase(messageRepository, dateProvider)
     const viewTimelineUerCase = new ViewTimelineUsecase(messageRepository, dateProvider)
+    const editMessageUseCase = new EditMessageUseCase(messageRepository)
 
     return {
         //Given
@@ -20,6 +30,7 @@ export const createMessagingFixture = () => {
         givenTheFollowingMessagesExist(messages: PostMessage[]) {
             return messageRepository.givenExistingMessages(messages)
         },
+
         //When
         async whenUserPostsAMessage(postMessageCommand: PostMessageCommand) {
             try {
@@ -29,14 +40,20 @@ export const createMessagingFixture = () => {
             }
         },
         async whenUserViewsHerTimeline(user: string) {
-            timeline = await viewTimelineUerCase.handle({user})
+            timeline = await viewTimelineUerCase.handle(user)
         },
-        async whenUserEditAMessage(message: EditMessage) {
+        async whenUserEditAMessage(editMessageCommand: EditMessageCommand) {
 
+            try {
+                await editMessageUseCase.handle(editMessageCommand);
+            } catch (err) {
+                thrownError = err;
+            }
         },
         // Then
-        thenMessageShouldBe(expectedMessage: Message) {
-            return expect(expectedMessage).toEqual(messageRepository.getMessageById(expectedMessage.id))
+        async thenMessageShouldBe(expectedMessage: Message) {
+            const message = await messageRepository.getMessageById(expectedMessage.id)
+            return expect(expectedMessage).toEqual(message)
         },
         thenAnErrorShouldBe(expectedErrorClass: new () => Error) {
             expect(thrownError.name).toBe(expectedErrorClass.name);

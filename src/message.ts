@@ -13,6 +13,7 @@ export type PostMessage = Omit<Message, 'id' | 'author' | 'publicationTime' | 'p
     publishedAt?: Date;
 };
 
-export type EditMessage = Omit<Message, 'author'> & {
-    author?: string;
-};
+export type EditMessageCommand = {
+    id: string,
+    text: string
+} & Partial<Message>;

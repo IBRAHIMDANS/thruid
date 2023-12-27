@@ -38,8 +38,7 @@ export const messageBuilder = (
                 id: message.id,
                 text: message.text,
                 author: message.author,
-                publishedAt: message.publishedAt,
-                publicationTime: message.publicationTime
+                publishedAt: message.publishedAt
             }
         }
     }

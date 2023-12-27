@@ -32,4 +32,14 @@ export class FileSystemMessageRepository implements MessageRepository {
             return [];
         }
     }
+
+    async getMessageById(id: string): Promise<Message> {
+        const messages = await this.getMessages();
+
+        if (!messages.some(message => message.id === id)) {
+            return Promise.reject(`Message with id ${id} not found`)
+        }
+        return Promise.resolve(messages.find(message => message.id === id) as Message)
+
+    }
 }

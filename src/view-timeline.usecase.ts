@@ -11,7 +11,7 @@ export class ViewTimelineUsecase {
     ) {
     }
 
-    async handle({user}: { user: string }): Promise<Message[]> {
+    async handle(user: string): Promise<Message[]> {
         const messagesOfUser = await this.messageRepository.getAllOfUser(user)
         messagesOfUser.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime())
 
