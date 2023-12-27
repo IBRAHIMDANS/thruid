@@ -1,19 +1,11 @@
-import {
-    MessageCannotBeEmptyError,
-    MessageCannotOnlyBeSpaceError,
-    MessageTooLongError,
-    PostMessageCommand,
-    PostMessageUseCase
-} from "../post-message.usecase";
-import {InMemoryMessageRepository} from "../message.inmemory.usecase";
-import {Message} from "../message";
-import {StubDateProvider} from "../stub-date-provider";
+import {MessageCannotBeEmptyError, MessageCannotOnlyBeSpaceError, MessageTooLongError} from "../post-message.usecase";
+import {createMessagingFixture, MessagingFixture} from "./messaging.fixture";
 
 
 describe('Feature: Posting a message', () => {
-    let fixture: Fixture;
+    let fixture: MessagingFixture;
     beforeEach(() => {
-        fixture = createFixture()
+        fixture = createMessagingFixture()
     })
     describe('Rule: A Message can contain a maximum of 280 characters', () => {
         test("A can post a message on her timeline", async () => {
@@ -23,7 +15,7 @@ describe('Feature: Posting a message', () => {
                 text: 'Hello, world!',
                 author: 'A'
             })
-            fixture.thenPostedMessageShouldBe({
+            fixture.thenMessageShouldBe({
                 id: 'message-id',
                 text: 'Hello, world!',
                 author: 'A',
@@ -69,30 +61,3 @@ describe('Feature: Posting a message', () => {
         })
     })
 })
-
-
-const createFixture = () => {
-    const dateProvider = new StubDateProvider()
-    const messageRepository = new InMemoryMessageRepository()
-    const postMessageUseCase = new PostMessageUseCase(messageRepository, dateProvider)
-    let thrownError: Error;
-    return {
-        givenNowIs(now: Date) {
-            dateProvider._now = now
-        },
-        async whenUserPostsAMessage(postMessageCommand: PostMessageCommand) {
-            try {
-                await postMessageUseCase.handle(postMessageCommand);
-            } catch (err) {
-                thrownError = err;
-            }
-        },
-        thenPostedMessageShouldBe(expectedMessage: Message) {
-            return expect(expectedMessage).toEqual(messageRepository.getMessageById(expectedMessage.id))
-        },
-        thenAnErrorShouldBe(expectedErrorClass: new () => Error) {
-            expect(thrownError.name).toBe(expectedErrorClass.name);
-        }
-    }
-}
-type Fixture = ReturnType<typeof createFixture>

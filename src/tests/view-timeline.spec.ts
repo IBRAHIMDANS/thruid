@@ -1,14 +1,11 @@
-import {Message} from "../message";
-import {InMemoryMessageRepository} from "../message.inmemory.usecase";
-import {ViewTimelineUsecase} from "../view-timeline.usecase";
-import {StubDateProvider} from "../stub-date-provider";
+import {createMessagingFixture, MessagingFixture} from "./messaging.fixture";
 
 
 describe('Feature: View Timeline', () => {
-    let fixture: Fixture;
+    let fixture: MessagingFixture;
 
     beforeEach(() => {
-        fixture = createFixture();
+        fixture = createMessagingFixture();
     })
 
     describe('Rule: Messages are shown in reverse chronological order', () => {
@@ -50,7 +47,7 @@ describe('Feature: View Timeline', () => {
                 }
             ])
             fixture.givenNowIs(new Date('2023-12-26T16:40:00Z'))
-            await fixture.whenAViewsHerTimeline("A")
+            await fixture.whenUserViewsHerTimeline("A")
             fixture.thenASeesTheFollowingMessagesInReverseChronologicalOrder([
                 {
                     text: 'Hello World 5',
@@ -72,25 +69,3 @@ describe('Feature: View Timeline', () => {
     })
 
 })
-
-const createFixture = () => {
-    let timeline: Message[] = [];
-    const messageRepository = new InMemoryMessageRepository();
-    const dateProvider = new StubDateProvider();
-    const viewTimelineUerCase = new ViewTimelineUsecase(messageRepository, dateProvider)
-    return {
-        givenTheFollowingMessagesExist(messages: Message[]) {
-            return messageRepository.givenExistingMessages(messages)
-        },
-        givenNowIs(now: Date) {
-            dateProvider._now = now;
-        },
-        async whenAViewsHerTimeline(user: string) {
-            timeline = await viewTimelineUerCase.handle({user})
-        },
-        thenASeesTheFollowingMessagesInReverseChronologicalOrder(expectedTimeline: Message[]) {
-            expect(timeline).toEqual(expectedTimeline)
-        }
-    }
-}
-type Fixture = ReturnType<typeof createFixture>;

@@ -1,4 +1,4 @@
-import {Message} from "./message";
+import {Message, PostMessage} from "./message";
 import {MessageRepository} from "./message.repository";
 
 export class InMemoryMessageRepository implements MessageRepository {
@@ -13,7 +13,7 @@ export class InMemoryMessageRepository implements MessageRepository {
         return this.message.get(id)!
     }
 
-    givenExistingMessages(messages: Message[]) {
+    givenExistingMessages(messages: PostMessage[]) {
         return messages.forEach(this._save.bind(this))
     }
 
