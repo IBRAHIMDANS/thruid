@@ -8,7 +8,12 @@ export class FileSystemMessageRepository implements MessageRepository {
 
     async save(message: Message) {
         const messages = await this.getMessages();
-        messages.push(message);
+        const existingMessageIdx = messages.findIndex(msg => msg.id === message.id);
+        if (existingMessageIdx !== -1) {
+            messages[existingMessageIdx] = message;
+        } else {
+            messages.push(message);
+        }
         return fs.promises.writeFile(this.messagePath, JSON.stringify(messages));
     }
 
