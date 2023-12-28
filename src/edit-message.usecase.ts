@@ -1,6 +1,10 @@
-import {EditMessageCommand} from "./message";
+import {
+    EditMessageCommand,
+    MessageCannotBeEmptyError,
+    MessageCannotOnlyBeSpaceError,
+    MessageTooLongError
+} from "./message";
 import {MessageRepository} from "./message.repository";
-import {MessageCannotBeEmptyError, MessageCannotOnlyBeSpaceError, MessageTooLongError} from "./post-message.usecase";
 
 
 export class EditMessageUseCase {
