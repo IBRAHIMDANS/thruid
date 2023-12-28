@@ -17,19 +17,19 @@ jobs:
       - name: Install GitHub CLI
         run: |
           sudo apt update
-          sudo apt install gh
+          sudo apt install -y gh
 
       - name: Check if new commit commits
         id: check-commits
         run: |
           COMMITS=$(git log origin/main..origin/dev --oneline)
           if [[ -z "$COMMITS" ]]; then
-            echo "Aucun nouveau commit à fusionner."
+            echo "No new commits to merge."
             echo "::set-output name=has_changes::false"
+            exit 0
           else
             echo "::set-output name=has_changes::true"
           fi
-
 
       - name: Config GitHub CLI
         run: |
@@ -38,8 +38,12 @@ jobs:
           git config --global user.name "git bot mr 🤖"
 
       - name: Create MR
+        if: steps.check-commits.outputs.has_changes == 'true'
         run: |
-          gh pr create --title "Chore: rebase dev onto main" --body "rebase dev onto main" --reviewer ibrahimdans --base main --head dev
-
+          PR_TITLE=$(git log -1 --pretty=format:%s)
+          PR_BODY=$(git log -1 --pretty=format:%b)
+          PR_TITLE=${PR_TITLE:-"Chore: rebase dev onto main"}
+          PR_BODY=${PR_BODY:-"This is an automated PR to rebase dev onto main."}
+          gh pr create --title "$PR_TITLE" --body "$PR_BODY" --reviewer ibrahimdans --base main --head dev
 env:
   PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
