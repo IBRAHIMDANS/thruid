@@ -1,5 +1,4 @@
 import {MessageRepository} from "./message.repository";
-import {Message} from "./message";
 import {DateProvider} from "./post-message.usecase";
 
 const ONE_MINUTE_IN_MILLISECONDS = 1000 * 60;
@@ -11,12 +10,16 @@ export class ViewTimelineUsecase {
     ) {
     }
 
-    async handle(user: string): Promise<Message[]> {
+    async handle(user: string): Promise<{
+        author: string;
+        text: string;
+        publicationTime: string;
+    }[]> {
         const messagesOfUser = await this.messageRepository.getAllOfUser(user)
         messagesOfUser.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime())
 
         return messagesOfUser.map(message => ({
-            text: message.text,
+            text: message.text.value,
             author: message.author,
             publicationTime: this.publicationTime(message.publishedAt)
         }))

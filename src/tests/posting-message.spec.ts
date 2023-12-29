@@ -1,4 +1,4 @@
-import {MessageCannotBeEmptyError, MessageCannotOnlyBeSpaceError, MessageTooLongError} from "../message";
+import {MessageCannotBeEmptyError, MessageCannotOnlyBeSpaceError, MessageText, MessageTooLongError} from "../message";
 import {createMessagingFixture, MessagingFixture} from "./messaging.fixture";
 import {messageBuilder} from "./message.builder";
 
@@ -15,10 +15,18 @@ describe('Feature: Posting a message', () => {
 
             fixture.givenNowIs(now)
 
-            const aMessageBuilder = messageBuilder().withText('Hello, world!')
-            await fixture.whenUserPostsAMessage(aMessageBuilder.build())
+            await fixture.whenUserPostsAMessage({
+                id: 'message-id',
+                text: 'Hello, world!',
+                author: 'A',
+            })
 
-            await fixture.thenMessageShouldBe(aMessageBuilder.publishedAt(now).build())
+            await fixture.thenMessageShouldBe({
+                id: 'message-id',
+                text: MessageText.of('Hello, world!'),
+                author: 'A',
+                publishedAt: now,
+            })
 
         })
     })
@@ -27,10 +35,13 @@ describe('Feature: Posting a message', () => {
 
             const now = new Date("2023-12-26T16:28:00Z")
 
-            const aMessageBuilder = messageBuilder().withText('a'.repeat(282)).authorBy('A')
 
             fixture.givenNowIs(now)
-            await fixture.whenUserPostsAMessage(aMessageBuilder.build())
+            await fixture.whenUserPostsAMessage({
+                author: 'A',
+                id: 'message-id',
+                text: 'a'.repeat(282),
+            })
 
             fixture.thenAnErrorShouldBe(MessageTooLongError);
 
@@ -43,9 +54,12 @@ describe('Feature: Posting a message', () => {
 
             fixture.givenNowIs(now)
 
-            const aMessageBuilderWithEmptyMessage = messageBuilder().withId('message-id').withText('').authorBy('A')
-
-            await fixture.whenUserPostsAMessage(aMessageBuilderWithEmptyMessage.build())
+            await fixture.whenUserPostsAMessage(
+                {
+                    author: 'A',
+                    id: 'message-id',
+                    text: '',
+                })
 
             fixture.thenAnErrorShouldBe(MessageCannotBeEmptyError)
 
@@ -60,7 +74,11 @@ describe('Feature: Posting a message', () => {
 
             const aMessageBuilderWithTextOnlySpaces = messageBuilder().withText(' '.repeat(100)).authorBy('A')
 
-            await fixture.whenUserPostsAMessage(aMessageBuilderWithTextOnlySpaces.build())
+            await fixture.whenUserPostsAMessage({
+                id: 'message-id',
+                text: ' '.repeat(100),
+                author: 'A',
+            })
 
             fixture.thenAnErrorShouldBe(MessageCannotOnlyBeSpaceError)
 

@@ -31,6 +31,17 @@ jobs:
             echo "::set-output name=has_changes::true"
           fi
 
+      - name: Check for draft or WIP commits
+        id: check-draft-wip
+        run: |
+          LAST_COMMIT_TITLE=$(git log -1 --pretty=format:%s)
+          if [[ "$LAST_COMMIT_TITLE" == draft:* ]] || [[ "$LAST_COMMIT_TITLE" == wip:* ]]; then
+            echo "Draft or WIP commit found. Skipping PR creation."
+            echo "::set-output name=create_pr::false"
+          else
+            echo "::set-output name=create_pr::true"
+          fi
+
       - name: Config GitHub CLI
         run: |
           echo "${{ secrets.PERSONAL_ACCESS_TOKEN }}" | gh auth login --with-token
@@ -38,7 +49,7 @@ jobs:
           git config --global user.name "git bot mr 🤖"
 
       - name: Create MR
-        if: steps.check-commits.outputs.has_changes == 'true'
+        if: steps.check-commits.outputs.has_changes == 'true' && steps.check-draft-wip.outputs.create_pr == 'true'
         run: |
           PR_TITLE=$(git log -1 --pretty=format:%s)
           PR_BODY=$(git log -1 --pretty=format:%b)
