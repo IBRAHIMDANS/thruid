@@ -1,4 +1,4 @@
-import {MessageCannotBeEmptyError, MessageCannotOnlyBeSpaceError, MessageText, MessageTooLongError} from "../message";
+import {MessageCannotBeEmptyError, MessageCannotOnlyBeSpaceError, MessageTooLongError} from "../message";
 import {createMessagingFixture, MessagingFixture} from "./messaging.fixture";
 import {messageBuilder} from "./message.builder";
 
@@ -16,17 +16,12 @@ describe('Feature: Posting a message', () => {
             fixture.givenNowIs(now)
 
             await fixture.whenUserPostsAMessage({
-                id: 'message-id',
-                text: 'Hello, world!',
-                author: 'A',
+                id: "message-id",
+                text: "Hello World",
+                author: "A",
             })
 
-            await fixture.thenMessageShouldBe({
-                id: 'message-id',
-                text: MessageText.of('Hello, world!'),
-                author: 'A',
-                publishedAt: now,
-            })
+            await fixture.thenMessageShouldBe(messageBuilder().withText('Hello World').authorBy('A').publishedAt(now).build())
 
         })
     })
@@ -34,7 +29,6 @@ describe('Feature: Posting a message', () => {
         test('A cannot post a message with more than 280 characters', async () => {
 
             const now = new Date("2023-12-26T16:28:00Z")
-
 
             fixture.givenNowIs(now)
             await fixture.whenUserPostsAMessage({
@@ -71,8 +65,6 @@ describe('Feature: Posting a message', () => {
             const now = new Date("2023-12-26T16:28:00Z")
 
             fixture.givenNowIs(now)
-
-            const aMessageBuilderWithTextOnlySpaces = messageBuilder().withText(' '.repeat(100)).authorBy('A')
 
             await fixture.whenUserPostsAMessage({
                 id: 'message-id',

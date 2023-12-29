@@ -19,6 +19,12 @@ jobs:
           sudo apt update
           sudo apt install -y gh
 
+      - name: Config GitHub CLI
+        run: |
+          echo "${{ secrets.PERSONAL_ACCESS_TOKEN }}" | gh auth login --with-token
+          git config --global user.email "boot@github.com"
+          git config --global user.name "git bot mr 🤖"
+
       - name: Check if new commit commits
         id: check-commits
         run: |
@@ -31,25 +37,20 @@ jobs:
             echo "::set-output name=has_changes::true"
           fi
 
-      - name: Check for draft or WIP commits
-        id: check-draft-wip
+      - name: Check for draft or WIP commits and existing PR
+        id: check-draft-wip-and-pr
         run: |
           LAST_COMMIT_TITLE=$(git log -1 --pretty=format:%s)
-          if [[ "$LAST_COMMIT_TITLE" == draft:* ]] || [[ "$LAST_COMMIT_TITLE" == wip:* ]]; then
-            echo "Draft or WIP commit found. Skipping PR creation."
+          EXISTING_PR=$(gh pr list --base main --head dev --state open --limit 1)
+          if [[ "$LAST_COMMIT_TITLE" == draft:* ]] || [[ "$LAST_COMMIT_TITLE" == wip:* ]] || [[ -n "$EXISTING_PR" ]]; then
+            echo "Draft/WIP commit found or PR already exists. Skipping PR creation."
             echo "::set-output name=create_pr::false"
           else
             echo "::set-output name=create_pr::true"
           fi
 
-      - name: Config GitHub CLI
-        run: |
-          echo "${{ secrets.PERSONAL_ACCESS_TOKEN }}" | gh auth login --with-token
-          git config --global user.email "boot@github.com"
-          git config --global user.name "git bot mr 🤖"
-
       - name: Create MR
-        if: steps.check-commits.outputs.has_changes == 'true' && steps.check-draft-wip.outputs.create_pr == 'true'
+        if: steps.check-commits.outputs.has_changes == 'true' && steps.check-draft-wip-and-pr.outputs.create_pr == 'true'
         run: |
           PR_TITLE=$(git log -1 --pretty=format:%s)
           PR_BODY=$(git log -1 --pretty=format:%b)
