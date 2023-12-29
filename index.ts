@@ -2,25 +2,21 @@
 import {Command} from 'commander';
 import * as crypto from "crypto";
 
-import {PostMessageUseCase} from "./src/post-message.usecase";
-import {EditMessageCommand, PostMessageCommand} from "./src/message";
+import {PostMessageUseCase} from "./src/application/usecases/post-message.usecase";
+import {EditMessageCommand, PostMessageCommand} from "./src/application/domain/message";
 
-import {FileSystemMessageRepository} from "./src/message.fs.repository";
+import {FileSystemMessageRepository} from "./src/infra/message.fs.repository";
 
 
-import {ViewTimelineUsecase} from "./src/view-timeline.usecase";
-import {EditMessageUseCase} from "./src/edit-message.usecase";
+import {ViewTimelineUsecase} from "./src/application/usecases/view-timeline.usecase";
+import {EditMessageUseCase} from "./src/application/usecases/edit-message.usecase";
+import {RealDateProvider} from "./src/infra/real-date-provider";
 
-class DateProvider implements DateProvider {
-    getNow(): Date {
-        return new Date();
-    }
-}
 
 const program = new Command();
 const messageRepository = new FileSystemMessageRepository();
 
-const dateProvider = new DateProvider();
+const dateProvider = new RealDateProvider();
 
 const postMessageUseCase = new PostMessageUseCase(messageRepository, dateProvider)
 const editMessageUseCase = new EditMessageUseCase(messageRepository)

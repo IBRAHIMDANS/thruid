@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import {FileSystemMessageRepository} from "../message.fs.repository";
+import {FileSystemMessageRepository} from "../infra/message.fs.repository";
 import {messageBuilder} from "./message.builder";
 import {afterEach} from "node:test";
 

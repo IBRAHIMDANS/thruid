@@ -1,4 +1,4 @@
-import {Message} from "../message";
+import {Message} from "../application/domain/message";
 
 export const messageBuilder = (
     {

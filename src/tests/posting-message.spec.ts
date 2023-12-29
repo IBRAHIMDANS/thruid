@@ -1,4 +1,8 @@
-import {MessageCannotBeEmptyError, MessageCannotOnlyBeSpaceError, MessageTooLongError} from "../message";
+import {
+    MessageCannotBeEmptyError,
+    MessageCannotOnlyBeSpaceError,
+    MessageTooLongError
+} from "../application/domain/message";
 import {createMessagingFixture, MessagingFixture} from "./messaging.fixture";
 import {messageBuilder} from "./message.builder";
 

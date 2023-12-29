@@ -1,6 +1,10 @@
 import {createMessagingFixture, MessagingFixture} from "./messaging.fixture";
 import {messageBuilder} from "./message.builder";
-import {MessageCannotBeEmptyError, MessageCannotOnlyBeSpaceError, MessageTooLongError} from "../message";
+import {
+    MessageCannotBeEmptyError,
+    MessageCannotOnlyBeSpaceError,
+    MessageTooLongError
+} from "../application/domain/message";
 
 describe('Feature: Edit a message', () => {
     let fixture: MessagingFixture;
