@@ -2,6 +2,7 @@ import {
     EditMessageCommand,
     MessageCannotBeEmptyError,
     MessageCannotOnlyBeSpaceError,
+    MessageText,
     MessageTooLongError
 } from "./message";
 import {MessageRepository} from "./message.repository";
@@ -28,8 +29,10 @@ export class EditMessageUseCase {
             throw new Error(`Message with id ${editMessageCommand.id} not found`)
         }
 
-        messageToEdit.text = editMessageCommand.text
-
-        await this.messageRepository.save(messageToEdit)
+        const editedMessage = {
+            ...messageToEdit,
+            text: MessageText.of(editMessageCommand.text),
+        };
+        await this.messageRepository.save(editedMessage)
     }
 }

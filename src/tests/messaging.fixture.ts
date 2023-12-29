@@ -1,16 +1,20 @@
 import {StubDateProvider} from "../stub-date-provider";
 
 import {InMemoryMessageRepository} from "../message.inmemory.usecase";
-import {PostMessageCommand, PostMessageUseCase} from "../post-message.usecase";
+import {PostMessageUseCase} from "../post-message.usecase";
 import {ViewTimelineUsecase} from "../view-timeline.usecase";
 import {EditMessageUseCase} from "../edit-message.usecase";
 
-import {EditMessageCommand, Message, PostMessage} from "../message";
+import {EditMessageCommand, Message, PostMessageCommand} from "../message";
 
 
 export const createMessagingFixture = () => {
     let thrownError: Error;
-    let timeline: Message[] = [];
+    let timeline: {
+        author: string;
+        text: string;
+        publicationTime: string;
+    }[] = [];
 
     const dateProvider = new StubDateProvider()
 
@@ -27,7 +31,7 @@ export const createMessagingFixture = () => {
         givenNowIs(now: Date) {
             dateProvider._now = now
         },
-        givenTheFollowingMessagesExist(messages: PostMessage[]) {
+        givenTheFollowingMessagesExist(messages: Message[]) {
             return messageRepository.givenExistingMessages(messages)
         },
 
@@ -58,7 +62,11 @@ export const createMessagingFixture = () => {
         thenAnErrorShouldBe(expectedErrorClass: new () => Error) {
             expect(thrownError.name).toBe(expectedErrorClass.name);
         },
-        thenASeesTheFollowingMessagesInReverseChronologicalOrder(expectedTimeline: Message[]) {
+        thenASeesTheFollowingMessagesInReverseChronologicalOrder(expectedTimeline: {
+            author: string;
+            text: string;
+            publicationTime: string;
+        }[]) {
             expect(timeline).toEqual(expectedTimeline)
         }
     }

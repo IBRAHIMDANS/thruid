@@ -1,4 +1,4 @@
-import {Message} from "../message";
+import {Message, MessageText} from "../message";
 
 export const messageBuilder = (
     {
@@ -6,15 +6,18 @@ export const messageBuilder = (
         author = 'A',
         text = 'Hello World',
         publishedAt = new Date('2023-12-26T16:39:00Z'),
-        publicationTime = 'less than a minute ago'
-    } = {} as Message
+    }: {
+        id?: string;
+        author?: string;
+        text?: string;
+        publishedAt?: Date;
+    } = {}
 ) => {
     const message = {
         id,
         author,
         text,
-        publishedAt,
-        publicationTime
+        publishedAt
     };
 
     return {
@@ -30,13 +33,10 @@ export const messageBuilder = (
         publishedAt(publishedAt: Date) {
             return messageBuilder({...message, publishedAt})
         },
-        publicationTime(publicationTime: string) {
-            return messageBuilder({...message, publicationTime})
-        },
         build(): Message {
             return {
                 id: message.id,
-                text: message.text,
+                text: MessageText.of(message.text),
                 author: message.author,
                 publishedAt: message.publishedAt
             }

@@ -20,6 +20,7 @@ export class MessageCannotBeEmptyError extends Error {
 }
 
 export class MessageText {
+
     private constructor(readonly value: string) {
     }
 
@@ -39,19 +40,12 @@ export class MessageText {
 }
 
 export type Message = {
-    id?: string;
-    text: string;
+    id: string;
+    text: MessageText;
     author: string;
-    publicationTime?: string;
-    publishedAt?: Date;
+    publishedAt: Date;
 }
 
-export type PostMessage = Omit<Message, 'id' | 'author' | 'publicationTime' | 'publishedAt'> & {
-    id?: string;
-    author?: string;
-    publicationTime?: string;
-    publishedAt?: Date;
-};
 
 export type EditMessageCommand = {
     id: string,
@@ -59,7 +53,7 @@ export type EditMessageCommand = {
 };
 
 export type PostMessageCommand = {
-    id?: string,
+    id: string;
     text: string;
     author: string;
 };
