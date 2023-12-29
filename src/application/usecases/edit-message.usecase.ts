@@ -1,5 +1,5 @@
-import {EditMessageCommand, Message} from "./message";
-import {MessageRepository} from "./message.repository";
+import {MessageRepository} from "../message.repository";
+import {EditMessageCommand, Message} from "../domain/message";
 
 
 export class EditMessageUseCase {

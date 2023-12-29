@@ -1,9 +1,7 @@
-import {MessageRepository} from "./message.repository";
-import {Message, PostMessageCommand} from "./message";
+import {Message, PostMessageCommand} from "../domain/message";
+import {MessageRepository} from "../message.repository";
+import {DateProvider} from "../date-provider";
 
-export interface DateProvider {
-    getNow(): Date;
-}
 
 export class PostMessageUseCase {
     constructor(
