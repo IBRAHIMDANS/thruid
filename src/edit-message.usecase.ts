@@ -1,4 +1,4 @@
-import {EditMessageCommand, MessageText} from "./message";
+import {EditMessageCommand, Message} from "./message";
 import {MessageRepository} from "./message.repository";
 
 
@@ -8,18 +8,14 @@ export class EditMessageUseCase {
 
     async handle(editMessageCommand: EditMessageCommand) {
 
-        const messageToEdit = await this.messageRepository.getMessageById(editMessageCommand.id)
-        if (!messageToEdit) {
+        const message = await this.messageRepository.getMessageById(editMessageCommand.id)
+
+        if (!message) {
             throw new Error(`Message with id ${editMessageCommand.id} not found`)
         }
 
-        const text = MessageText.of(editMessageCommand.text)
+        message.editText(editMessageCommand.text);
 
-        const editedMessage = {
-            ...messageToEdit,
-            text,
-        };
-
-        await this.messageRepository.save(editedMessage)
+        await this.messageRepository.save(Message.fromData(message))
     }
 }

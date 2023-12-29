@@ -1,4 +1,4 @@
-import {Message, MessageText} from "../message";
+import {Message} from "../message";
 
 export const messageBuilder = (
     {
@@ -34,12 +34,12 @@ export const messageBuilder = (
             return messageBuilder({...message, publishedAt})
         },
         build(): Message {
-            return {
+            return Message.fromData({
                 id: message.id,
-                text: MessageText.of(message.text),
+                text: message.text,
                 author: message.author,
                 publishedAt: message.publishedAt
-            }
+            })
         }
     }
 }
