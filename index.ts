@@ -2,8 +2,8 @@
 import {Command} from 'commander';
 import * as crypto from "crypto";
 
-import {PostMessageCommand, PostMessageUseCase} from "./src/post-message.usecase";
-import {EditMessageCommand} from "./src/message";
+import {PostMessageUseCase} from "./src/post-message.usecase";
+import {EditMessageCommand, PostMessageCommand} from "./src/message";
 
 import {FileSystemMessageRepository} from "./src/message.fs.repository";
 
