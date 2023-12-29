@@ -1,5 +1,5 @@
 import {MessageRepository} from "./message.repository";
-import {MessageText, PostMessageCommand} from "./message";
+import {Message, PostMessageCommand} from "./message";
 
 export interface DateProvider {
     getNow(): Date;
@@ -14,14 +14,13 @@ export class PostMessageUseCase {
 
     async handle(postMessageCommand: PostMessageCommand): Promise<void> {
 
-        const messageText = MessageText.of(postMessageCommand.text);
-
-        await this.messageRepository.save({
+        await this.messageRepository.save(Message.fromData({
             id: postMessageCommand.id,
-            text: messageText,
+                text: postMessageCommand.text,
             author: postMessageCommand.author,
             publishedAt: this.dateProvider.getNow()
         })
+        )
     }
 }
 

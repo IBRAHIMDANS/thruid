@@ -19,7 +19,7 @@ export class ViewTimelineUsecase {
         messagesOfUser.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime())
 
         return messagesOfUser.map(message => ({
-            text: message.text.value,
+            text: message.text,
             author: message.author,
             publicationTime: this.publicationTime(message.publishedAt)
         }))
