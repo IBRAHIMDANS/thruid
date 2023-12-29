@@ -1,10 +1,4 @@
-import {
-    EditMessageCommand,
-    MessageCannotBeEmptyError,
-    MessageCannotOnlyBeSpaceError,
-    MessageText,
-    MessageTooLongError
-} from "./message";
+import {EditMessageCommand, MessageText} from "./message";
 import {MessageRepository} from "./message.repository";
 
 
@@ -14,25 +8,18 @@ export class EditMessageUseCase {
 
     async handle(editMessageCommand: EditMessageCommand) {
 
-        if (editMessageCommand.text.length === 0) {
-            throw new MessageCannotBeEmptyError();
-        }
-        if (editMessageCommand.text.trim().length === 0) {
-            throw new MessageCannotOnlyBeSpaceError();
-        }
-        if (editMessageCommand.text.length > 280) {
-            throw new MessageTooLongError();
-        }
-
         const messageToEdit = await this.messageRepository.getMessageById(editMessageCommand.id)
         if (!messageToEdit) {
             throw new Error(`Message with id ${editMessageCommand.id} not found`)
         }
 
+        const text = MessageText.of(editMessageCommand.text)
+
         const editedMessage = {
             ...messageToEdit,
-            text: MessageText.of(editMessageCommand.text),
+            text,
         };
+
         await this.messageRepository.save(editedMessage)
     }
 }
