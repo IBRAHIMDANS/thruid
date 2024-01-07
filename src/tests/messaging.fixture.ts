@@ -29,7 +29,7 @@ export const createMessagingFixture = () => {
     return {
         //Given
         givenNowIs(now: Date) {
-            dateProvider._now = now
+            dateProvider.now = now
         },
         givenTheFollowingMessagesExist(messages: Message[]) {
             return messageRepository.givenExistingMessages(messages)
@@ -44,7 +44,7 @@ export const createMessagingFixture = () => {
             }
         },
         async whenUserViewsHerTimeline(user: string) {
-            timeline = await viewTimelineUerCase.handle(user)
+            timeline = await viewTimelineUerCase.handle({user})
         },
         async whenUserEditAMessage(editMessageCommand: EditMessageCommand) {
 
@@ -68,7 +68,8 @@ export const createMessagingFixture = () => {
             publicationTime: string;
         }[]) {
             expect(timeline).toEqual(expectedTimeline)
-        }
+        },
+        messageRepository
     }
 }
 

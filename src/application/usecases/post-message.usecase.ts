@@ -13,11 +13,11 @@ export class PostMessageUseCase {
     async handle(postMessageCommand: PostMessageCommand): Promise<void> {
 
         await this.messageRepository.save(Message.fromData({
-            id: postMessageCommand.id,
+                id: postMessageCommand.id,
                 text: postMessageCommand.text,
-            author: postMessageCommand.author,
-            publishedAt: this.dateProvider.getNow()
-        })
+                author: postMessageCommand.author,
+                publishedAt: this.dateProvider.getNow()
+            })
         )
     }
 }

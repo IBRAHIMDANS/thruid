@@ -1,7 +1,6 @@
 import {MessageRepository} from "../message.repository";
 import {DateProvider} from "../date-provider";
-
-const ONE_MINUTE_IN_MILLISECONDS = 1000 * 60;
+import {Timeline} from "../domain/timeline";
 
 export class ViewTimelineUsecase {
     constructor(
@@ -10,30 +9,15 @@ export class ViewTimelineUsecase {
     ) {
     }
 
-    async handle(user: string): Promise<{
+    async handle({user}: { user: string }): Promise<{
         author: string;
         text: string;
         publicationTime: string;
     }[]> {
         const messagesOfUser = await this.messageRepository.getAllOfUser(user)
-        messagesOfUser.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime())
 
-        return messagesOfUser.map(message => ({
-            text: message.text,
-            author: message.author,
-            publicationTime: this.publicationTime(message.publishedAt)
-        }))
-    }
+        const timeline = new Timeline(messagesOfUser, this.dateProvider.getNow());
 
-    publicationTime(publishedAt: Date) {
-        const now = this.dateProvider.getNow()
-        const diffInMilliseconds = now.getTime() - publishedAt.getTime();
-        const diffInMinutes = Math.floor(diffInMilliseconds / ONE_MINUTE_IN_MILLISECONDS);
-
-        if (diffInMinutes < 1) {
-            return 'less than a minute ago';
-        } else {
-            return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
-        }
+        return timeline.data;
     }
 }

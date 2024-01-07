@@ -1,7 +1,7 @@
-import {InMemoryFolloweeRepository} from "../infra/followee.inmemory.usecase";
+import {InMemoryFolloweeRepository} from "../infra/followee.inmemory.repository";
 import {FollowUserCommand, FollowUserUseCase} from "../application/usecases/follow-user.usecase";
 
-export const createFolloweeFixture = () => {
+export const createFollowingFixture = () => {
     const followeeRepository = new InMemoryFolloweeRepository();
     const followUserUseCase = new FollowUserUseCase(followeeRepository);
 
@@ -28,14 +28,14 @@ export const createFolloweeFixture = () => {
             user: string;
             followees: string[];
         }) {
-            const actualFollowees = followeeRepository.getFolloweesOf(
+            const actualFollowees = await followeeRepository.getFolloweesOf(
                 userFollowees.user
             );
             expect(actualFollowees).toEqual(userFollowees.followees);
 
-        }
-
+        },
+        followeeRepository
     }
 }
 
-export type FolloweeFixture = ReturnType<typeof createFolloweeFixture>;
+export type FollowingFixture = ReturnType<typeof createFollowingFixture>;
