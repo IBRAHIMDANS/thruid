@@ -1,11 +1,11 @@
-import {createFolloweeFixture, FolloweeFixture} from "./followee.fixture";
+import {createFollowingFixture, FollowingFixture} from "./following.fixture";
 
 describe("Feature: Following User", () => {
 
-    let fixture: FolloweeFixture;
+    let fixture: FollowingFixture;
 
     beforeEach(() => {
-        fixture = createFolloweeFixture()
+        fixture = createFollowingFixture()
     })
     test("Scenario: A can follow B another user", async () => {
         // Given A is logged in
